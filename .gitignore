@@ -169,3 +169,7 @@ cython_debug/
 *.bin
 *.pth
 *.safetensors
+
+# train arguments
+train_args.json
+eval_result.json
