@@ -41,7 +41,7 @@ class EmbeddingNetwork(nn.Module):
         # But it's more appropriate to perform such checks during data preparation
         input_tensor = [] 
         for row in inputs:
-            input_ids = row[1:].int() # Exclude ratio and padding 128009(llama3)
+            input_ids = row[1:].int() # Exclude ratio
             # logger.debug(f"input ids: {input_ids.shape}")
             if len(input_ids) > 0:
                 input_tensor.append(torch.mean(self.embedding(input_ids).squeeze(), dim=0))

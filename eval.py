@@ -26,7 +26,7 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
     model.to(device)
 
     model.eval()
-    logger.info("Model {model_path} loaded successfully!")
+    logger.info(f"Model {model_path.replace('.pth','').split('/')[-1]} loaded successfully!")
 
     mse_loss = nn.MSELoss(reduction='sum')
     total_mse = 0.0
@@ -43,7 +43,7 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
                                      return_tensors="pt")
                     )
             target = row["lce"]
-            target = torch.tensor(target, dtype=torch.float32)
+            target = torch.tensor([target], dtype=torch.float32)
             input_ratio = torch.tensor(list(map(float, list(row[ratio_columns]))), dtype=torch.float32).unsqueeze(1)
             input_ids = torch.cat(input_ids, dim=0)
 
@@ -60,11 +60,11 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
 
     rmse = torch.sqrt(torch.tensor(total_mse / total_samples))
     logger.info(f"the rmse of ckpt in {model_path} is {rmse}")
-    return rmse
+    return rmse.tolist()
 
 if __name__ == "__main__":
     testset_file="./data/ceak_experiments_hzx.csv"
-    model_folder="./ckpts/instructinit/"
+    model_folder="./ckpts/instructinit-uf-lr54/"
     dataframe = pd.read_csv(testset_file)
     pth_files = []
     for root, _, files in os.walk(model_folder):
@@ -92,12 +92,5 @@ if __name__ == "__main__":
                 )
             }
         )
-    with open(os.path.join(model_folder, "eval_result.json"), "r") as f:
+    with open(os.path.join(model_folder, "eval_result.json"), "w") as f:
         json.dump(rmse, f)
-
-
-    
-
-
-
-

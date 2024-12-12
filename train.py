@@ -26,6 +26,7 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
     for epoch in range(num_epochs):
         epoch_loss = 0.0
         epoch_step = 0
+        losses = []
         for inputs, targets in dataloader:
             inputs = inputs.to(device).squeeze()
             targets = targets.to(device)
@@ -44,10 +45,14 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
 
             epoch_loss += loss.item()
             epoch_step += 1
+            if epoch_step % 10 == 0:
+                losses.append(str(loss.item()))
             if epoch_step % 50 == 0:
                 logger.debug(f"Step {epoch_step}, Loss {epoch_loss / epoch_step:.4f}")
 
         logger.info(f"Epoch {epoch + 1}/{num_epochs}, Step: {epoch_step}, Loss: {epoch_loss / len(dataloader):.4f}")
+        with open(os.path.join(save_dir, "loss.log"), "a") as wf:
+            wf.write("\n".join(losses)+"\n")
         checkpoint_path = os.path.join(save_dir, f"llama_epoch_{epoch + 1}.pth")
         torch.save(model.state_dict(), checkpoint_path)
         logger.info(f"Model saved to {checkpoint_path}")
@@ -74,15 +79,15 @@ if __name__ == "__main__":
     
     train_args["batch_size"] = 1
     train_args["num_epochs"] = 10
-    train_args["learning_rate"] = 0.001
-    train_args["is_freezed"]=True
-
+    train_args["learning_rate"] = 0.0005
+    train_args["is_freezed"]=False # NEEDED
+    save_dir = "ckpts/instructinit-uf-lr54" # NEEDED
     logger.debug(f"vocab_size is {train_args['vocab_size']}, embedding_dim is {train_args['embedding_dim']}, hidden_dim is {train_args['hidden_dim']}")
     
-    with open("ckpts/instructinit/train_args.json", "w") as f:
+    with open(save_dir+"/train_args.json", "w") as f:
         json.dump(train_args, f, indent=4)
-    with open("ckpts/randinit/train_args.json", "w") as f:
-        json.dump(train_args, f, indent=4)
+    # with open("ckpts/randinit/train_args.json", "w") as f:
+    #     json.dump(train_args, f, indent=4)
 
     net_instructinit_freezed = CEAK_Llama(
         vocab_size=train_args["vocab_size"],
@@ -91,13 +96,13 @@ if __name__ == "__main__":
         pretrained_weights=pretrained_model.get_input_embeddings().weight,
         is_freezed=train_args["is_freezed"]
     )
-    net_randinit_freezed = CEAK_Llama(
-        vocab_size=train_args["vocab_size"],
-        embedding_dim=train_args["embedding_dim"],
-        hidden_dim=train_args["hidden_dim"],
-        pretrained_weights=None,
-        is_freezed=train_args["is_freezed"]
-    )
+    # net_randinit_freezed = CEAK_Llama(
+    #     vocab_size=train_args["vocab_size"],
+    #     embedding_dim=train_args["embedding_dim"],
+    #     hidden_dim=train_args["hidden_dim"],
+    #     pretrained_weights=None,
+    #     is_freezed=train_args["is_freezed"]
+    # )
 
     del pretrained_model
     torch.cuda.empty_cache()
@@ -117,21 +122,21 @@ if __name__ == "__main__":
         criterion=criterion,
         optimizer=optimizer,
         num_epochs=train_args["num_epochs"],
-        save_dir="ckpts/instructinit"
+        save_dir=save_dir  # NEEDED
         )
     
-    dataset = CEAKDataset(
-        dataframe = pd.read_csv("./data/ceak_datasets.csv"),
-        tokenizer = tokenizer
-        )
-    dataloader = DataLoader(dataset, batch_size=train_args["batch_size"], shuffle=True)
-    optimizer = optim.Adam(net_instructinit_freezed.parameters(), lr=train_args["learning_rate"])
+    # dataset = CEAKDataset(
+    #     dataframe = pd.read_csv("./data/ceak_datasets.csv"),
+    #     tokenizer = tokenizer
+    #     )
+    # dataloader = DataLoader(dataset, batch_size=train_args["batch_size"], shuffle=True)
+    # optimizer = optim.Adam(net_instructinit_freezed.parameters(), lr=train_args["learning_rate"])
     
-    train_model(
-        model=net_randinit_freezed,
-        dataloader=dataloader,
-        criterion=criterion,
-        optimizer=optimizer,
-        num_epochs=train_args["num_epochs"],
-        save_dir="ckpts/randinit"
-        )
+    # train_model(
+    #     model=net_randinit_freezed,
+    #     dataloader=dataloader,
+    #     criterion=criterion,
+    #     optimizer=optimizer,
+    #     num_epochs=train_args["num_epochs"],
+    #     save_dir="ckpts/randinit"  # NEEDED
+    #     )
