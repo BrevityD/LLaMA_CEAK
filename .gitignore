@@ -169,6 +169,7 @@ cython_debug/
 *.bin
 *.pth
 *.safetensors
+*.bak
 
 # train arguments
 train_args.json
