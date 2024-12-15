@@ -81,7 +81,7 @@ class DownstreamMLP(nn.Module):
         return self.softplus(x)
 
 class CEAK_Llama(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim, pretrained_weights=None, is_freezed=False):
+    def __init__(self, vocab_size, embedding_dim, hidden_dim, pretrained_weights=None, is_freezed=False, pooling:int=None):
         super(CEAK_Llama, self).__init__()
         self.upstream = EmbeddingNetwork(
             vocab_size=vocab_size,
@@ -89,6 +89,11 @@ class CEAK_Llama(nn.Module):
             pretrained_weights=pretrained_weights,
             is_freezed=is_freezed
             )
+        self.pooling = pooling
+        if self.pooling:
+            assert(isinstance(pooling, int))
+            embedding_dim //= pooling
+            hidden_dim //= pooling
         self.downstream = DownstreamMLP(
             input_dim=embedding_dim,
             hidden_dim=hidden_dim
@@ -96,5 +101,7 @@ class CEAK_Llama(nn.Module):
     
     def forward(self, input_ids):
         embedded = self.upstream(input_ids)
+        if self.pooling:
+            embedded = F.avg_pool1d(embedded, kernel_size=self.pooling, stride=self.pooling)
         output = self.downstream(embedded)
         return output

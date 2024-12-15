@@ -174,3 +174,7 @@ cython_debug/
 # train arguments
 train_args.json
 eval_result.json
+
+# train logs
+model_arc.txt
+tensorboard/

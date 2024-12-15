@@ -1,12 +1,12 @@
 import os
 
-import pandas as pd
 import torch
 import torch.nn as nn
 from loguru import logger
 from transformers import AutoTokenizer
 
 from model import CEAK_Llama
+import pandas as pd # 只有把pandas的import放在最后才能运行
 
 checkpoint_folder = "./ckpts/"
 
@@ -17,7 +17,8 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
     model = CEAK_Llama(
         vocab_size=train_args["vocab_size"],
         embedding_dim=train_args["embedding_dim"],
-        hidden_dim=train_args["hidden_dim"]
+        hidden_dim=train_args["hidden_dim"],
+        pooling=train_args["pooling"]
     )
     state_dict = torch.load(model_path, weights_only=True)
 
@@ -63,22 +64,23 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
     return rmse.tolist()
 
 if __name__ == "__main__":
-    testset_file="./data/ceak_experiments_hzx.csv"
-    model_folder="./ckpts/instructinit-uf-lr54/"
+    testset_file="./data/ceak_experiments_hzx_sub.csv"
+    model_folder="./ckpts/instructinit"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
     dataframe = pd.read_csv(testset_file)
     pth_files = []
     for root, _, files in os.walk(model_folder):
         for file in files:
             if file.endswith(".pth"):
                 pth_files.append(os.path.join(root, file))
-    
-    tokenizer = AutoTokenizer.from_pretrained("/home/G01-A100-20240605/pretrained_models/Meta-Llama-3-8B-Instruct")
-    tokenizer.pad_token = tokenizer.eos_token
 
     import json
     with open(os.path.join(model_folder, "train_args.json"), "r") as f:
         train_args = json.load(f)
-    
+
+    model_id = train_args["model_id"]
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    tokenizer.pad_token = tokenizer.eos_token
+
     rmse = {}
 
     for model_file in pth_files:
