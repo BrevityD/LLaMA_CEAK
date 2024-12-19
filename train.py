@@ -8,7 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 # Train the model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir="ckpts"):
+def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir="ckpts", device=device):
     """
     Train the model on the given DataLoader.
 
