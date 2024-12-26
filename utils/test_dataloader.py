@@ -2,9 +2,9 @@ import pandas as pd
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from datasets import CEAKDataset
+from llamaceak.datasets import CEAKDataset
 
-model_id = "/home/G01-A100-20240605/pretrained_models/Meta-Llama-3-8B-Instruct"
+model_id = "/home/~/pretrained_models/Meta-Llama-3-8B-Instruct"
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 

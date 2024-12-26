@@ -9,13 +9,13 @@ import pandas as pd
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from datasets import CEAKDataset
-from model import CEAK_Llama
-from train import train_model
+from llamaceak.datasets import CEAKDataset
+from llamaceak.model import CEAK_Llama
+from llamaceak.train import train_model
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model_id = "/mnt/afs/dzj/pretrained_models/Llama-3.3-70B-Instruct"
+model_id = "/mnt/afs/~/pretrained_models/Llama-3.3-70B-Instruct"
 layer_file = "/model-00001-of-00030.safetensors"
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)

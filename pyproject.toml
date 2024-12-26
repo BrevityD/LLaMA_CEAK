@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "llamaceak"
+version = "0.1.0"
+description = "Replace the upstream network of CEAK with some components of LLaMA."
+authors = ["dzj <brevity_d@mail.ustc.edu.cn>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,5 +1,4 @@
 import torch
-from loguru import logger
 from torch.utils.data import Dataset
 
 class CEAKDataset(Dataset):
