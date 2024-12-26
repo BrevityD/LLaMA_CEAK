@@ -8,7 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 # Train the model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir="ckpts"):
+def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=None, device=device):
     """
     Train the model on the given DataLoader.
 
@@ -22,7 +22,7 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
     """
     model.to(device)
     model.train()
-    writer = SummaryWriter(save_dir+"/tensorboard")
+    # writer = SummaryWriter(save_dir+"/tensorboard")
     total_step = 0
 
     for epoch in range(num_epochs):
@@ -48,7 +48,7 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
             epoch_loss += loss.item()
             epoch_step += 1
             total_step += 1
-            writer.add_scalar("Loss/train", loss.item(), total_step)
+            # writer.add_scalar("Loss/train", loss.item(), total_step)
             if epoch_step % 10 == 0:
                 losses.append(str(loss.item()))
             if epoch_step % 50 == 0:
@@ -56,11 +56,14 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
                 logger.debug(f"Step {epoch_step}, Loss {epoch_loss / epoch_step:.4f}, learning rate {lr}")
 
         logger.info(f"Epoch {epoch + 1}/{num_epochs}, Step: {epoch_step}, Loss: {epoch_loss / len(dataloader):.4f}")
-        with open(os.path.join(save_dir, "loss.log"), "a") as wf:
-            wf.write("\n".join(losses)+"\n")
-        checkpoint_path = os.path.join(save_dir, f"llama_epoch_{epoch + 1}.pth")
-        torch.save(model.state_dict(), checkpoint_path)
-        logger.info(f"Model saved to {checkpoint_path}")
+        if save_dir:
+            with open(os.path.join(save_dir, "loss.log"), "a") as wf:
+                wf.write("\n".join(losses)+"\n")
+            checkpoint_path = os.path.join(save_dir, f"llama_epoch_{epoch + 1}.pth")
+            torch.save(model.state_dict(), checkpoint_path)
+            logger.info(f"Model saved to {checkpoint_path}")
+
+    return epoch_loss / len(dataloader)
 
 if __name__ == "__main__":
     import pandas as pd

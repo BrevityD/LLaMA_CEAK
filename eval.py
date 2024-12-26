@@ -10,6 +10,25 @@ import pandas as pd # 只有把pandas的import放在最后才能运行
 
 checkpoint_folder = "./ckpts/"
 
+def eval_model_onval(model, val_loader, criterion, device=torch.device('cuda')):
+    model.eval()
+    eval_loss = 0.0
+    total_samples = 0
+    with torch.no_grad():
+        for inputs, targets in val_loader:
+            inputs = inputs.to(device).squeeze()
+            targets = targets.to(device)
+
+            # Forward pass
+            outputs = model(inputs)
+            loss = criterion(outputs.squeeze(-1), targets)
+            eval_loss += loss.item()
+            total_samples += 1
+        rmse = torch.sqrt(torch.tensor(eval_loss / total_samples))
+    logger.info(f"the valid rmse is {rmse}")
+    return rmse.tolist()
+    
+
 def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device('cuda')):
     input_columns = ["electrolyte 1 - smiles", "electrolyte 2 - smiles", "electrolyte 3 - smiles", "electrolyte 4 - smiles", "electrolyte 5 - smiles", "electrolyte 6 - smiles", "electrolyte 7 - smiles"]
     ratio_columns = ["electrolyte 1 - %", "electrolyte 2 - %", "electrolyte 3 - %", "electrolyte 4 - %", "electrolyte 5 - %", "electrolyte 6 - %", "electrolyte 7 - %"]
@@ -65,7 +84,7 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
 
 if __name__ == "__main__":
     testset_file="./data/ceak_experiments_hzx_sub.csv"
-    model_folder="./ckpts/instructinit"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
+    model_folder="./ckpts/dpo-v1v1-1B-fd-p-f-lr13-5fd"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
     dataframe = pd.read_csv(testset_file)
     pth_files = []
     for root, _, files in os.walk(model_folder):
