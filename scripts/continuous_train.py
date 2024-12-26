@@ -9,20 +9,19 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-from datasets import CEAKDataset
-from model import CEAK_Llama
-from train import train_model
+from llamaceak.datasets import CEAKDataset
+from llamaceak.model import CEAK_Llama
+from llamaceak.train import train_model
 
 import pandas as pd
 
 # Train the model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# model_id = "/home/G01-A100-20240605/pretrained_models/Meta-Llama-3-8B-Instruct/"
-model_id = "/home/G01-A100-20240605/pretrained_models/Llama-3.2-1B-Instruct/"
-# model_id = "/mnt/afs/dwc/chkpts/sft/llamafy-llama-3.2-1b-instruct_sft_full_241104_v6/"
-ckpt = "/home/dzj/llama_ceak/llama-ceak/ckpts/temp"
-# ckpt = "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr14-c"
+model_id = "/home/~/pretrained_models/Llama-3.2-1B-Instruct/"
+# model_id = "/mnt/afs/~/chkpts/sft/llamafy-llama-3.2-1b-instruct_sft_full_241104_v6/"
+ckpt = "/home/~/llama_ceak/llama-ceak/ckpts/temp"
+# ckpt = "/mnt/afs/~/ckpts/llama-ceak/llama-1B-od-p-uf-lr14-c"
 model_path = ckpt+"/llama_epoch_1.pth"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token

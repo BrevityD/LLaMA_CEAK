@@ -5,10 +5,8 @@ import torch.nn as nn
 from loguru import logger
 from transformers import AutoTokenizer
 
-from model import CEAK_Llama
+from llamaceak.model import CEAK_Llama
 import pandas as pd # 只有把pandas的import放在最后才能运行
-
-checkpoint_folder = "./ckpts/"
 
 def eval_model_onval(model, val_loader, criterion, device=torch.device('cuda')):
     model.eval()

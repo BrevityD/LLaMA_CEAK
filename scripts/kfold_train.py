@@ -8,9 +8,9 @@ from loguru import logger
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
 
-from eval import eval_model_onval
-from model import CEAK_Llama
-from train import train_model
+from llamaceak.eval import eval_model_onval
+from llamaceak.model import CEAK_Llama
+from llamaceak.train import train_model
 
 def k_fold_cross_validation(
         dataset,
@@ -88,10 +88,9 @@ if __name__ == "__main__":
     import pandas as pd
     from transformers import AutoTokenizer, AutoModelForCausalLM
 
-    from datasets import CEAKDataset
+    from llamaceak.datasets import CEAKDataset
 
-    # model_id = "/home/G01-A100-20240605/pretrained_models/Llama-3.2-1B-Instruct/"
-    model_id = "/mnt/afs/dwc/chkpts/dpo/sft_full_241104_v1-dpo_full_241210_v1/"
+    model_id = "/mnt/afs/~/chkpts/dpo/sft_full_241104_v1-dpo_full_241210_v1/"
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pretrained_model = AutoModelForCausalLM.from_pretrained(model_id)
 
@@ -108,7 +107,7 @@ if __name__ == "__main__":
     train_args["is_freezed"]=True # NEEDED
     train_args["dataset_path"] = "./data/ceak_datasets_sub.csv"
     train_args["k_folds"] = 5
-    save_dir = "ckpts/dpo-v1v1-1B-fd-p-f-lr13-5fd" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}-{5fd}
+    save_dir = "ckpts/temp" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}-{5fd}
 
     logger.debug(f"vocab_size is {train_args['vocab_size']}, embedding_dim is {train_args['embedding_dim']}, hidden_dim is {train_args['hidden_dim']}")
     

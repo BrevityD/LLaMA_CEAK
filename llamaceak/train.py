@@ -6,9 +6,8 @@ from loguru import logger
 from torch.utils.tensorboard import SummaryWriter
 
 # Train the model
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=None, device=device):
+def train_model(model, dataloader, criterion, optimizer, device, num_epochs=5, save_dir=None):
     """
     Train the model on the given DataLoader.
 
@@ -22,7 +21,7 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
     """
     model.to(device)
     model.train()
-    # writer = SummaryWriter(save_dir+"/tensorboard")
+    writer = SummaryWriter(save_dir+"/tensorboard")
     total_step = 0
 
     for epoch in range(num_epochs):
@@ -48,7 +47,7 @@ def train_model(model, dataloader, criterion, optimizer, num_epochs=5, save_dir=
             epoch_loss += loss.item()
             epoch_step += 1
             total_step += 1
-            # writer.add_scalar("Loss/train", loss.item(), total_step)
+            writer.add_scalar("Loss/train", loss.item(), total_step)
             if epoch_step % 10 == 0:
                 losses.append(str(loss.item()))
             if epoch_step % 50 == 0:
@@ -74,12 +73,11 @@ if __name__ == "__main__":
     from torch.utils.data import DataLoader
     from transformers import AutoTokenizer, AutoModelForCausalLM
 
-    from datasets import CEAKDataset
-    from model import CEAK_Llama
+    from llamaceak.datasets import CEAKDataset
+    from llamaceak.model import CEAK_Llama
 
-    # model_id = "/home/G01-A100-20240605/pretrained_models/Meta-Llama-3-8B-Instruct/"
-    model_id = "/home/G01-A100-20240605/pretrained_models/Llama-3.2-1B-Instruct/"
-    # model_id = "/mnt/afs/dwc/chkpts/sft/llamafy-llama-3.2-1b-instruct_sft_full_241104_v6/"
+    model_id = "/home/~/pretrained_models/Llama-3.2-1B-Instruct/"
+    # model_id = "/mnt/afs/~/chkpts/sft/llamafy-llama-3.2-1b-instruct_sft_full_241104_v6/"
 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pretrained_model = AutoModelForCausalLM.from_pretrained(model_id)
@@ -132,5 +130,6 @@ if __name__ == "__main__":
         criterion=criterion,
         optimizer=optimizer,
         num_epochs=train_args["num_epochs"],
-        save_dir=save_dir
+        save_dir=save_dir,
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         )
