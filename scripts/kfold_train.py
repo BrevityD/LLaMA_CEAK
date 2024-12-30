@@ -103,7 +103,7 @@ if __name__ == "__main__":
     train_args["pooling"] = 8 # NEEDED None
     train_args["batch_size"] = 1
     train_args["num_epochs"] = 10
-    train_args["learning_rate"] = 0.001
+    train_args["learning_rate"] = 0.0005
     train_args["is_freezed"]=True # NEEDED
     train_args["dataset_path"] = "./data/ceak_datasets_sub.csv"
     train_args["k_folds"] = 5
