@@ -61,7 +61,8 @@ def k_fold_cross_validation(
                 criterion=criterion, 
                 optimizer=optimizer, 
                 num_epochs=1,
-                device=device
+                device=device,
+                save_dir=save_dir
                 )
             # Validation phase
             val_loss = eval_model_onval(
@@ -89,6 +90,7 @@ if __name__ == "__main__":
     from transformers import AutoTokenizer, AutoModelForCausalLM
 
     from llamaceak.datasets import CEAKDataset
+
 
     model_id = "/mnt/afs/~/chkpts/dpo/sft_full_241104_v1-dpo_full_241210_v1/"
     tokenizer = AutoTokenizer.from_pretrained(model_id)
