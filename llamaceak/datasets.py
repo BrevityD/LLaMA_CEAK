@@ -15,9 +15,11 @@ class CEAKDataset(Dataset):
         self.input_column = ["electrolyte 1 - smiles", "electrolyte 2 - smiles", "electrolyte 3 - smiles", "electrolyte 4 - smiles", "electrolyte 5 - smiles", "electrolyte 6 - smiles", "electrolyte 7 - smiles"]
         self.ratio_column = ["electrolyte 1 - %", "electrolyte 2 - %", "electrolyte 3 - %", "electrolyte 4 - %", "electrolyte 5 - %", "electrolyte 6 - %", "electrolyte 7 - %"]
         self.tokenizer = tokenizer
+
         if self.tokenizer:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         self.is_id = is_id
+
 
     def __len__(self):
         return len(self.data)
@@ -50,6 +52,7 @@ class CEAKDataset(Dataset):
                         ratio = float(self.data.iloc[idx][self.ratio_column][i])
                     )
                 )
+
         target = self.data.iloc[idx]["lce"]
         target = torch.tensor(target, dtype=torch.float32)
 

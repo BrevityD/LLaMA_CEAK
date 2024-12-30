@@ -37,6 +37,7 @@ def train_model(model, dataloader, criterion, optimizer, device, num_epochs=5, s
 
             # Forward pass
             # logger.debug(f"output: {type(inputs)}, content: {inputs}")
+
             outputs = model(inputs)
 
             # logger.info(f"output: {outputs.shape}, {outputs}")
