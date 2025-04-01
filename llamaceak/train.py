@@ -81,8 +81,7 @@ if __name__ == "__main__":
     from llamaceak.datasets import CEAKDataset
     from llamaceak.model import CEAK_Llama
 
-    model_id = "/home/~/pretrained_models/Llama-3.2-1B-Instruct/"
-    # model_id = "/mnt/afs/~/chkpts/sft/llamafy-llama-3.2-1b-instruct_sft_full_241104_v6/"
+    model_id = ""
 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pretrained_model = AutoModelForCausalLM.from_pretrained(model_id)
@@ -98,8 +97,8 @@ if __name__ == "__main__":
     train_args["num_epochs"] = 10
     train_args["learning_rate"] = 0.001
     train_args["is_freezed"]=False # NEEDED
-    train_args["dataset_path"] = "./data/ceak_datasets_sub.csv"
-    save_dir = "ckpts/llama-1B-fd-p-uf-lr13" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}
+    train_args["dataset_path"] = "./data/.csv"
+    save_dir = "ckpts/" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}
 
     logger.debug(f"vocab_size is {train_args['vocab_size']}, embedding_dim is {train_args['embedding_dim']}, hidden_dim is {train_args['hidden_dim']}")
     

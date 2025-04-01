@@ -6,7 +6,7 @@ import torch.nn as nn
 from loguru import logger
 
 from llamaceak.model import CEAK_Llama_Plus
-import pandas as pd # 只有把pandas的import放在最后才能运行
+import pandas as pd  # 只有把pandas的import放在最后才能运行
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -59,8 +59,8 @@ def eval_model(model_path, train_args, dataframe, device=torch.device('cuda')):
     return rmse.tolist()
 
 
-testset_file="./data/ceak_experiments_hzx_sub.csv"
-model_folder="./ckpts/llama-1B-od-p-f-ly4-lr13"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
+testset_file=".csv"
+model_folder=""
 dataframe = pd.read_csv(testset_file)
 pth_files = []
 for root, _, files in os.walk(model_folder):

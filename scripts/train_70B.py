@@ -15,7 +15,7 @@ from llamaceak.train import train_model
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model_id = "/mnt/afs/~/pretrained_models/Llama-3.3-70B-Instruct"
+model_id = "Llama-3.3-70B-Instruct"
 layer_file = "/model-00001-of-00030.safetensors"
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -33,8 +33,8 @@ train_args["batch_size"] = 1
 train_args["num_epochs"] = 20
 train_args["learning_rate"] = 0.001
 train_args["is_freezed"]=True # NEEDED
-train_args["dataset_path"] = "./data/ceak_datasets.csv"
-save_dir = "ckpts/llama-70B-od-p-f-lr13" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}
+train_args["dataset_path"] = ".csv"
+save_dir = ""  # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}
 
 logger.debug(f"vocab_size is {train_args['vocab_size']}, embedding_dim is {train_args['embedding_dim']}, hidden_dim is {train_args['hidden_dim']}")
 

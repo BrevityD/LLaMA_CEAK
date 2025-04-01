@@ -18,18 +18,18 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 train_args = {}
 
-train_args["model_id"] = "/home/G01-A100-20240605/pretrained_models/Llama-3.2-1B-Instruct/"# "/mnt/afs/dwc/chkpts/dpo/sft_full_241104_v1-dpo_full_241220_v4"
+train_args["model_id"] = ""
 train_args["vocab_size"], train_args["embedding_dim"] = 128256, 2048
 train_args["hidden_dim"] = train_args["embedding_dim"] // 4
 
-train_args["pooling"] = 8 # NEEDED None
+train_args["pooling"] = 8  # NEEDED None
 train_args["batch_size"] = 1
 train_args["num_epochs"] = 10
 train_args["learning_rate"] = 0.001
-train_args["is_freezed"]=None # NEEDED
-train_args["dataset_path"] = "./data/ceak_datasets.csv"
+train_args["is_freezed"]=None  # NEEDED
+train_args["dataset_path"] = ".csv"
 train_args["n_layer"] = 4
-save_dir = "ckpts/llama-1B-od-p-f-ly4-lr13" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{ly4}-{lr14}
+save_dir = ""  # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{ly4}-{lr14}
 
 logger.debug(f"vocab_size is {train_args['vocab_size']}, embedding_dim is {train_args['embedding_dim']}, hidden_dim is {train_args['hidden_dim']}")
 

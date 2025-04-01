@@ -92,7 +92,7 @@ if __name__ == "__main__":
     from llamaceak.datasets import CEAKDataset
 
 
-    model_id = "/mnt/afs/~/chkpts/dpo/sft_full_241104_v1-dpo_full_241210_v1/"
+    model_id = ""
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pretrained_model = AutoModelForCausalLM.from_pretrained(model_id)
 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     train_args["num_epochs"] = 10
     train_args["learning_rate"] = 0.001
     train_args["is_freezed"]=True # NEEDED
-    train_args["dataset_path"] = "./data/ceak_datasets_sub.csv"
+    train_args["dataset_path"] = ".csv"
     train_args["k_folds"] = 5
     save_dir = "ckpts/temp" # NEEDED llama-{1B}-{fd/od}-{p/n}-{f/uf}-{lr14}-{5fd}
 

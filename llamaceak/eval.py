@@ -6,7 +6,7 @@ from loguru import logger
 from transformers import AutoTokenizer
 
 from llamaceak.model import CEAK_Llama
-import pandas as pd # 只有把pandas的import放在最后才能运行
+import pandas as pd  # 只有把pandas的import放在最后才能运行
 
 def eval_model_onval(model, val_loader, criterion, device=torch.device('cuda')):
     model.eval()
@@ -81,8 +81,8 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
     return rmse.tolist()
 
 if __name__ == "__main__":
-    testset_file="./data/ceak_experiments_hzx_sub.csv"
-    model_folder="./ckpts/dpo-v1v1-1B-fd-p-f-lr13-5fd"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
+    testset_file="./data/.csv"
+    model_folder=""
     dataframe = pd.read_csv(testset_file)
     pth_files = []
     for root, _, files in os.walk(model_folder):

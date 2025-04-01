@@ -4,6 +4,9 @@ import torch.nn.functional as F
 from loguru import logger
 
 class EmbeddingNetwork(nn.Module):
+    """
+    Embedding layer for token IDs and their ratio.
+    """
     def __init__(self, vocab_size, embedding_dim, pretrained_weights=None, is_freezed=False):
         """
         Initializes the embedding layer.
@@ -16,7 +19,7 @@ class EmbeddingNetwork(nn.Module):
         """
         super(EmbeddingNetwork, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        
+
         if pretrained_weights is not None:
             # Load pretrained weights into the embedding layer
             self.embedding.weight.data.copy_(pretrained_weights)
@@ -39,7 +42,7 @@ class EmbeddingNetwork(nn.Module):
         """
         # Ideally I would add some assertions to check the shape of input
         # But it's more appropriate to perform such checks during data preparation
-        input_tensor = [] 
+        input_tensor = []
         for row in inputs:
             input_ids = row[1:].int() # Exclude ratio
             # logger.debug(f"input ids: {input_ids.shape}")
@@ -49,10 +52,13 @@ class EmbeddingNetwork(nn.Module):
         input_tensor = torch.stack(input_tensor, dim=0).to(device)
         input_ratio = inputs[:, 0].unsqueeze(0)
         assert input_tensor.shape[0] == input_ratio.shape[-1], f"id: {input_tensor.shape}, ratio: {input_ratio.shape}"
-        
+
         return torch.matmul(input_ratio, input_tensor)
 
 class DownstreamMLP(nn.Module):
+    """
+    A simple MLP for regression.
+    """
     def __init__(self, input_dim, hidden_dim):
         """
         Initializes a simple MLP for regression.
@@ -81,7 +87,8 @@ class DownstreamMLP(nn.Module):
         return self.softplus(x)
 
 class CEAK_Llama(nn.Module):
-    """Replace the upstream network of CEAK with the embedding layer of LLAMA.
+    """
+    Replace the upstream network of CEAK with the embedding layer of LLAMA.
     """
     def __init__(self, vocab_size, embedding_dim, hidden_dim, pretrained_weights=None, is_freezed=False, pooling:int=None):
         super(CEAK_Llama, self).__init__()
@@ -93,7 +100,7 @@ class CEAK_Llama(nn.Module):
             )
         self.pooling = pooling
         if self.pooling:
-            assert(isinstance(pooling, int))
+            assert isinstance(pooling, int), "pooling must be an integer"
             embedding_dim //= pooling
             hidden_dim //= pooling
         self.downstream = DownstreamMLP(
@@ -109,7 +116,8 @@ class CEAK_Llama(nn.Module):
         return output
 
 class Llama_serial(nn.Module):
-    """The first few layer of llama model
+    """
+    The first few layers of llama model
     """
     def __init__(self, model_path, n_layer, device="cuda"):
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -137,8 +145,8 @@ class Llama_serial(nn.Module):
                 self.past_seen_tokens = self.past_key_values.get_seq_length() if self.past_key_values is not None else 0
                 cache_position = torch.arange(self.past_seen_tokens, self.past_seen_tokens + inputs_emb.shape[1], device=inputs_emb.device)
                 position_ids = cache_position.unsqueeze(0)
-                output = layer(output, position_ids=position_ids)[0]
-        return output[:, -1, :].reshape(1,-1)
+                output = layer(output, position_ids=position_ids)[0]  # Only be available for `transformers<4.26.1`
+        return output[:, -1, :].reshape(1,-1) 
 
 class CEAK_Llama_Plus(nn.Module):
     """Use the entire LLAMA model (excluding the last few layers) to obtain an embedding for each input sequence (generated using a fixed prompt template). Then, utilize an MLP network to make predictions.
