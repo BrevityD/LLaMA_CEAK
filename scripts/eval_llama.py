@@ -1,16 +1,42 @@
+"""Script for evaluating LLaMA-CEAK models.
+
+This script provides functionality to:
+- Load trained CEAK_Llama_Plus models
+- Evaluate on test datasets
+- Calculate RMSE metrics
+- Save evaluation results
+"""
+
 import os
 import warnings
+from typing import Dict, Any
 
 import torch
 import torch.nn as nn
-from loguru import logger
+from loguru import logger  # type: ignore
 
 from llamaceak.model import CEAK_Llama_Plus
-import pandas as pd # 只有把pandas的import放在最后才能运行
+import pandas as pd  # Required to be imported last for compatibility
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-def eval_model(model_path, train_args, dataframe, device=torch.device('cuda')):
+def eval_model(
+    model_path: str,
+    train_args: Dict[str, Any],
+    dataframe: pd.DataFrame,
+    device: torch.device = torch.device('cuda')
+) -> float:
+    """Evaluate a trained CEAK_Llama_Plus model on test data.
+    
+    Args:
+        model_path: Path to saved model checkpoint
+        train_args: Dictionary of training arguments
+        dataframe: Test data DataFrame
+        device: Device to run evaluation on
+    
+    Returns:
+        float: RMSE on test set
+    """
     input_columns = ["electrolyte 1 - smiles", "electrolyte 2 - smiles", "electrolyte 3 - smiles", "electrolyte 4 - smiles", "electrolyte 5 - smiles", "electrolyte 6 - smiles", "electrolyte 7 - smiles"]
     ratio_columns = ["electrolyte 1 - %", "electrolyte 2 - %", "electrolyte 3 - %", "electrolyte 4 - %", "electrolyte 5 - %", "electrolyte 6 - %", "electrolyte 7 - %"]
 
@@ -59,8 +85,9 @@ def eval_model(model_path, train_args, dataframe, device=torch.device('cuda')):
     return rmse.tolist()
 
 
-testset_file="./data/ceak_experiments_hzx_sub.csv"
-model_folder="./ckpts/llama-1B-od-p-f-ly4-lr13"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
+testset_file="./data/ceak.csv"
+model_folder="./ckpts/llama-1B-od-p-f-ly4-lr13"
+
 dataframe = pd.read_csv(testset_file)
 pth_files = []
 for root, _, files in os.walk(model_folder):
@@ -87,5 +114,3 @@ for model_file in pth_files:
     )
 with open(os.path.join(model_folder, "eval_result.json"), "w") as f:
     json.dump(rmse, f)
-
-

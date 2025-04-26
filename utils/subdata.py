@@ -1,16 +1,27 @@
-"""This script filters molecules based on their LCE. 
-Only molecules with an LCE greater than 1 are selected, as those with an LCE less than 
-or equal to 1 are considered potentially ineffective or unsuitable for further analysis."""
-import pandas as pd
+"""Filter and subset electrolyte data based on LCE (Lithium Coulombic Efficiency) values.
 
-origin_file = "data/ceak_experiments_hzx.csv"
-# origin_file = "data/ceak_datasets.csv"
-target_file = "data/ceak_experiments_hzx_sub.csv"
-# target_file = "data/ceak_datasets_sub.csv"
+This script:
+- Reads raw electrolyte experiment data from CSV
+- Filters to only include entries with LCE > 1
+- Saves filtered subset to new CSV file
 
-df = pd.read_csv(origin_file)
+Rationale:
+Molecules with LCE <= 1 are considered potentially ineffective or unsuitable 
+for further analysis in battery electrolyte applications.
+"""
+import pandas as pd  # type: ignore
+from typing import NoReturn
 
+def main() -> NoReturn:
+    """Main function to filter and save electrolyte data."""
+    origin_file = "data/ceak_experiments_hzx.csv"
+    # origin_file = "data/ceak_datasets.csv"
+    target_file = "data/ceak_experiments_hzx_sub.csv" 
+    # target_file = "data/ceak_datasets_sub.csv"
 
-filtered_df = df[df['lce']>1]
+    df: pd.DataFrame = pd.read_csv(origin_file)
+    filtered_df: pd.DataFrame = df[df['lce'] > 1]
+    filtered_df.to_csv(target_file, index=False)
 
-filtered_df.to_csv(target_file, index=False)
+if __name__ == "__main__":
+    main()

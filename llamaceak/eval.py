@@ -1,4 +1,13 @@
+"""Model evaluation utilities for LLaMA-CEAK.
+
+This module provides functions for evaluating model performance:
+- Batch evaluation on validation sets
+- Single model evaluation on test data
+- RMSE calculation and logging
+"""
+
 import os
+from typing import Dict, Any
 
 import torch
 import torch.nn as nn
@@ -6,9 +15,25 @@ from loguru import logger
 from transformers import AutoTokenizer
 
 from llamaceak.model import CEAK_Llama
-import pandas as pd # 只有把pandas的import放在最后才能运行
+import pandas as pd  # Required to be imported last for compatibility
 
-def eval_model_onval(model, val_loader, criterion, device=torch.device('cuda')):
+def eval_model_onval(
+    model: nn.Module,
+    val_loader: torch.utils.data.DataLoader,
+    criterion: nn.Module,
+    device: torch.device = torch.device('cuda')
+) -> float:
+    """Evaluate model on validation set.
+    
+    Args:
+        model: Trained CEAK_Llama model
+        val_loader: DataLoader for validation set
+        criterion: Loss function (typically MSELoss)
+        device: Device to run evaluation on
+    
+    Returns:
+        float: RMSE on validation set
+    """
     model.eval()
     eval_loss = 0.0
     total_samples = 0
@@ -27,7 +52,25 @@ def eval_model_onval(model, val_loader, criterion, device=torch.device('cuda')):
     return rmse.tolist()
     
 
-def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device('cuda')):
+def eval_model(
+    model_path: str,
+    train_args: Dict[str, Any],
+    dataframe: pd.DataFrame,
+    tokenizer: AutoTokenizer,
+    device: torch.device = torch.device('cuda')
+) -> float:
+    """Evaluate saved model checkpoint on test data.
+    
+    Args:
+        model_path: Path to saved model .pth file
+        train_args: Dictionary of training arguments
+        dataframe: Test data DataFrame
+        tokenizer: Tokenizer for input processing
+        device: Device to run evaluation on
+    
+    Returns:
+        float: RMSE on test set
+    """
     input_columns = ["electrolyte 1 - smiles", "electrolyte 2 - smiles", "electrolyte 3 - smiles", "electrolyte 4 - smiles", "electrolyte 5 - smiles", "electrolyte 6 - smiles", "electrolyte 7 - smiles"]
     ratio_columns = ["electrolyte 1 - %", "electrolyte 2 - %", "electrolyte 3 - %", "electrolyte 4 - %", "electrolyte 5 - %", "electrolyte 6 - %", "electrolyte 7 - %"]
 
@@ -81,8 +124,8 @@ def eval_model(model_path, train_args, dataframe, tokenizer, device=torch.device
     return rmse.tolist()
 
 if __name__ == "__main__":
-    testset_file="./data/ceak_experiments_hzx_sub.csv"
-    model_folder="./ckpts/dpo-v1v1-1B-fd-p-f-lr13-5fd"# "/mnt/afs/dzj/ckpts/llama-ceak/llama-1B-od-p-uf-lr15"# 
+    testset_file="./data/ceak.csv"
+    model_folder="./ckpts/dpo-v1v1-1B-fd-p-f-lr13-5fd"
     dataframe = pd.read_csv(testset_file)
     pth_files = []
     for root, _, files in os.walk(model_folder):

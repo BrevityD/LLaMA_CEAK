@@ -1,6 +1,16 @@
-import os
+"""K-fold cross validation for LLaMA-CEAK models.
 
+This script provides functionality to:
+- Perform k-fold cross validation
+- Train and evaluate models on each fold
+- Save best performing checkpoints
+- Log training metrics
+"""
+
+import os
 import json
+from typing import Type, Optional
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -13,17 +23,34 @@ from llamaceak.model import CEAK_Llama
 from llamaceak.train import train_model
 
 def k_fold_cross_validation(
-        dataset,
-        train_args,
-        pretrained_model,
-        model_class=CEAK_Llama, 
-        k=5, 
-        batch_size=1,
-        epochs=10,
-        learning_rate=0.001,
-        device=torch.device('cuda'), 
-        save_dir='ckpts',
-        ):
+        dataset: torch.utils.data.Dataset,
+        train_args: dict,
+        pretrained_model: torch.nn.Module,
+        model_class: Type[torch.nn.Module] = CEAK_Llama,
+        k: int = 5,
+        batch_size: int = 1,
+        epochs: int = 10,
+        learning_rate: float = 0.001,
+        device: torch.device = torch.device('cuda'),
+        save_dir: str = 'ckpts',
+        ) -> Optional[torch.nn.Module]:
+    """Perform k-fold cross validation on CEAK_Llama model.
+    
+    Args:
+        dataset: Full dataset for k-fold splitting
+        train_args: Dictionary of training arguments
+        pretrained_model: Pretrained LLaMA model for embeddings
+        model_class: Model class to instantiate (default: CEAK_Llama)
+        k: Number of folds (default: 5)
+        batch_size: Batch size for training (default: 1)
+        epochs: Number of training epochs per fold (default: 10)
+        learning_rate: Learning rate for optimizer (default: 0.001)
+        device: Device to run training on (default: 'cuda')
+        save_dir: Directory to save checkpoints (default: 'ckpts')
+        
+    Returns:
+        Best performing model across all folds, or None if no model improved
+    """
     kf = KFold(n_splits=k, shuffle=True)
     best_val_accuracy = 0.0
     best_checkpoint = None
@@ -92,7 +119,7 @@ if __name__ == "__main__":
     from llamaceak.datasets import CEAKDataset
 
 
-    model_id = "/mnt/afs/~/chkpts/dpo/sft_full_241104_v1-dpo_full_241210_v1/"
+    model_id = ""
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pretrained_model = AutoModelForCausalLM.from_pretrained(model_id)
 

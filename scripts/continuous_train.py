@@ -1,5 +1,15 @@
+"""Continuous training script for LLaMA-CEAK models.
+
+This script provides functionality to:
+- Load pretrained LLaMA models
+- Initialize CEAK_Llama architecture
+- Resume training from checkpoints
+- Save training logs and metrics
+"""
+
 import os
 import json
+from typing import Dict, Any
 
 import torch
 import torch.nn as nn
@@ -13,9 +23,8 @@ from llamaceak.datasets import CEAKDataset
 from llamaceak.model import CEAK_Llama
 from llamaceak.train import train_model
 
-import pandas as pd
+import pandas as pd  # Required to be imported last for compatibility
 
-# Train the model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model_id = "/home/~/pretrained_models/Llama-3.2-1B-Instruct/"

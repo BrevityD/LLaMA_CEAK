@@ -1,23 +1,42 @@
+"""Model training utilities for LLaMA-CEAK.
+
+This module provides functions for:
+- Training the CEAK_Llama model
+- Saving checkpoints and logs
+- Tensorboard integration
+- Training progress monitoring
+"""
+
 import os
 import json
+from typing import Optional
 
 import torch
 from loguru import logger
 from torch.utils.tensorboard import SummaryWriter
 
-# Train the model
-
-def train_model(model, dataloader, criterion, optimizer, device, num_epochs=5, save_dir=None):
-    """
-    Train the model on the given DataLoader.
-
+def train_model(
+    model: torch.nn.Module,
+    dataloader: torch.utils.data.DataLoader,
+    criterion: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+    num_epochs: int = 5,
+    save_dir: Optional[str] = None
+) -> float:
+    """Train the CEAK_Llama model on the given DataLoader.
+    
     Args:
-        model (nn.Module): The model to train.
-        dataloader (DataLoader): DataLoader for the training data.
-        criterion (nn.Module): Loss function.
-        optimizer (torch.optim.Optimizer): Optimizer for training.
-        device (torch.device): Device to run the training on.
-        num_epochs (int): Number of epochs to train.
+        model: CEAK_Llama model to train
+        dataloader: DataLoader for training data
+        criterion: Loss function (typically MSELoss)
+        optimizer: Optimizer (typically Adam)
+        device: Device to run training on
+        num_epochs: Number of training epochs
+        save_dir: Directory to save checkpoints and logs (optional)
+        
+    Returns:
+        float: Final epoch loss
     """
     model.to(device)
     model.train()
@@ -82,8 +101,7 @@ if __name__ == "__main__":
     from llamaceak.model import CEAK_Llama
 
     model_id = "/home/~/pretrained_models/Llama-3.2-1B-Instruct/"
-    # model_id = "/mnt/afs/~/chkpts/sft/llamafy-llama-3.2-1b-instruct_sft_full_241104_v6/"
-
+    
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     pretrained_model = AutoModelForCausalLM.from_pretrained(model_id)
 

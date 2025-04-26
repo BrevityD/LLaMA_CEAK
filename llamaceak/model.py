@@ -1,3 +1,21 @@
+"""LLaMA-CEAK Model Components
+
+This module contains the neural network architectures for integrating LLaMA embeddings
+with the CEAK model. It includes:
+
+- EmbeddingNetwork: Wrapper for embedding layer with pretrained weights support
+- DownstreamMLP: Simple MLP for regression tasks
+- CEAK_Llama: Core model combining LLaMA embeddings with CEAK
+- Llama_serial: Partial LLaMA model (first n layers)
+- CEAK_Llama_Plus: Enhanced version using more LLaMA layers
+
+The module provides flexible configurations for:
+- Pretrained weight loading
+- Embedding layer freezing
+- Pooling operations
+- Partial LLaMA model integration
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -81,7 +99,23 @@ class DownstreamMLP(nn.Module):
         return self.softplus(x)
 
 class CEAK_Llama(nn.Module):
-    """Replace the upstream network of CEAK with the embedding layer of LLAMA.
+    """Core model combining LLaMA embeddings with CEAK architecture.
+    
+    Replaces CEAK's upstream network with LLaMA's embedding layer while maintaining
+    the original downstream MLP structure.
+    
+    Args:
+        vocab_size (int): Size of vocabulary for embedding layer
+        embedding_dim (int): Dimension of embeddings
+        hidden_dim (int): Hidden dimension for downstream MLP
+        pretrained_weights (Tensor, optional): Pretrained embedding weights
+        is_freezed (bool): Whether to freeze embedding weights
+        pooling (int, optional): Pooling factor to reduce dimensions
+    
+    Attributes:
+        upstream (EmbeddingNetwork): LLaMA embedding network
+        downstream (DownstreamMLP): Regression MLP
+        pooling (int): Pooling factor if specified
     """
     def __init__(self, vocab_size, embedding_dim, hidden_dim, pretrained_weights=None, is_freezed=False, pooling:int=None):
         super(CEAK_Llama, self).__init__()
@@ -109,7 +143,18 @@ class CEAK_Llama(nn.Module):
         return output
 
 class Llama_serial(nn.Module):
-    """The first few layer of llama model
+    """Partial LLaMA model (first n layers) for feature extraction.
+    
+    Args:
+        model_path (str): Path to pretrained LLaMA model
+        n_layer (int): Number of LLaMA layers to use
+        device (str): Device to run on ('cuda' or 'cpu')
+    
+    Attributes:
+        tokenizer: LLaMA tokenizer
+        embedding_layer: LLaMA input embeddings
+        model: Selected LLaMA layers
+        past_key_values: Cache for autoregressive generation
     """
     def __init__(self, model_path, n_layer, device="cuda"):
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -141,7 +186,22 @@ class Llama_serial(nn.Module):
         return output[:, -1, :].reshape(1,-1)
 
 class CEAK_Llama_Plus(nn.Module):
-    """Use the entire LLAMA model (excluding the last few layers) to obtain an embedding for each input sequence (generated using a fixed prompt template). Then, utilize an MLP network to make predictions.
+    """Enhanced version using more LLaMA layers for feature extraction.
+    
+    Uses first n layers of LLaMA model followed by MLP for regression.
+    
+    Args:
+        n_layer (int): Number of LLaMA layers to use
+        embedding_dim (int): Dimension of embeddings
+        hidden_dim (int): Hidden dimension for MLP
+        pooling (int, optional): Pooling factor to reduce dimensions
+        device (str): Device to run on ('cuda' or 'cpu')
+        model_path (str): Path to pretrained LLaMA model
+    
+    Attributes:
+        upstream (Llama_serial): Partial LLaMA model
+        downstream (DownstreamMLP): Regression MLP
+        pooling (int): Pooling factor if specified
     """
     def __init__(self, n_layer, embedding_dim, hidden_dim, pooling:int=None, device="cuda", model_path=""):
         super(CEAK_Llama_Plus, self).__init__()
